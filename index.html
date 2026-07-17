@@ -2,91 +2,112 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Universo con Canvas</title>
+  <title>Atardecer mágico</title>
   <style>
     body {
       margin: 0;
-      background: radial-gradient(circle at center, #0b0033, #000);
       overflow: hidden;
+      background: linear-gradient(to top, #ff9966, #ff5e62);
     }
+
     canvas {
       display: block;
     }
   </style>
 </head>
 <body>
-  <canvas id="universo"></canvas>
+  <canvas id="paisaje"></canvas>
 
   <script>
-    // Ajustar canvas al tamaño de la ventana
-    const canvas = document.getElementById("universo");
+    const canvas = document.getElementById("paisaje");
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Constructor Point
-    function Point(x, y) {
-      this.x = (typeof x !== 'undefined') ? x : 0;
-      this.y = (typeof y !== 'undefined') ? y : 0;
-    }
-
-    // Método para clonar
-    Point.prototype.clone = function () {
-      return new Point(this.x, this.y);
-    };
-
-    // Dibujar estrella
-    Point.prototype.drawStar = function () {
-      ctx.fillStyle = "white";
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-      ctx.fill();
-    };
-
-    // Generar muchas estrellas
-    let estrellas = [];
-    for (let i = 0; i < 150; i++) {
-      let p = new Point(Math.random() * canvas.width, Math.random() * canvas.height);
-      estrellas.push(p);
-    }
-
-    // Dibujar todas las estrellas
-    function dibujarUniverso() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      estrellas.forEach(e => e.drawStar());
-    }
-
-    // Animación de estrellas fugaces
-    function crearFugaz() {
-      let start = new Point(Math.random() * canvas.width, Math.random() * canvas.height / 2);
-      let end = new Point(start.x + 200, start.y + 200);
-
-      let paso = 0;
-      function animar() {
-        if (paso > 1) return;
-        let x = start.x + (end.x - start.x) * paso;
-        let y = start.y + (end.y - start.y) * paso;
-        ctx.strokeStyle = "white";
+    // 🌳 Árbol rosa
+    function dibujarArbol() {
+      ctx.fillStyle = "#8B4513";
+      ctx.fillRect(canvas.width / 2 - 10, canvas.height - 200, 20, 200);
+      for (let i = 0; i < 200; i++) {
+        const x = canvas.width / 2 + (Math.random() - 0.5) * 300;
+        const y = canvas.height - 200 - Math.random() * 300;
         ctx.beginPath();
-        ctx.moveTo(start.x, start.y);
-        ctx.lineTo(x, y);
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, ${150 + Math.random() * 100}, ${200 + Math.random() * 55}, 0.9)`;
+        ctx.fill();
+      }
+    }
+
+    // 🍃 Hojas cayendo
+    let hojas = [];
+    for (let i = 0; i < 50; i++) {
+      hojas.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 5 + 2,
+        s: Math.random() * 2 + 1
+      });
+    }
+
+    function moverHojas() {
+      hojas.forEach(h => {
+        h.y += h.s;
+        if (h.y > canvas.height) h.y = -10;
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,182,193,0.8)";
+        ctx.fill();
+      });
+    }
+
+    // 🌠 Estrella fugaz
+    function estrellaFugaz() {
+      let x = Math.random() * canvas.width;
+      let y = Math.random() * canvas.height / 2;
+      let dx = 10, dy = 5;
+      let longitud = 0;
+
+      function animar() {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x - longitud, y - longitud / 2);
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 2;
         ctx.stroke();
-        paso += 0.02;
-        requestAnimationFrame(animar);
+        x += dx;
+        y += dy;
+        longitud += 5;
+        if (x < canvas.width && y < canvas.height) {
+          requestAnimationFrame(animar);
+        }
       }
       animar();
     }
 
-    // Loop de animación
-    function loop() {
-      dibujarUniverso();
-      if (Math.random() < 0.02) { // probabilidad de fugaz
-        crearFugaz();
-      }
-      requestAnimationFrame(loop);
+    // 👫 Pareja mirando el atardecer
+    function dibujarPareja() {
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(canvas.width / 2 - 60, canvas.height - 100, 40, 100);
+      ctx.fillRect(canvas.width / 2 + 20, canvas.height - 100, 40, 100);
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2 - 20, canvas.height - 50);
+      ctx.lineTo(canvas.width / 2 + 20, canvas.height - 50);
+      ctx.strokeStyle = "rgba(0,0,0,0.6)";
+      ctx.lineWidth = 5;
+      ctx.stroke();
     }
 
-    loop();
+    // 🌇 Animación general
+    function animar() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      dibujarArbol();
+      moverHojas();
+      dibujarPareja();
+      if (Math.random() < 0.01) estrellaFugaz();
+      requestAnimationFrame(animar);
+    }
+
+    animar();
   </script>
 </body>
 </html>
